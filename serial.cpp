@@ -22,100 +22,75 @@
   terms of the MIT-license. See COPYING for more details.  
     Copyright (c) 2009-2011 Simen Svale Skogsrud
     Copyright (c) 2011-2012 Sungeun K. Jeon
-*/ 
+*/
 
-#include <avr/interrupt.h>
+#include <PropWare/PropWare.h>
+#include <PropWare/uart.h>
 #include "system.h"
 #include "serial.h"
-#include "motion_control.h"
-#include "protocol.h"
 
 
-uint8_t serial_rx_buffer[RX_BUFFER_SIZE];
-uint8_t serial_rx_buffer_head = 0;
+uint8_t          serial_rx_buffer[RX_BUFFER_SIZE];
+uint8_t          serial_rx_buffer_head = 0;
 volatile uint8_t serial_rx_buffer_tail = 0;
 
-uint8_t serial_tx_buffer[TX_BUFFER_SIZE];
-uint8_t serial_tx_buffer_head = 0;
+uint8_t          serial_tx_buffer[TX_BUFFER_SIZE];
+uint8_t          serial_tx_buffer_head = 0;
 volatile uint8_t serial_tx_buffer_tail = 0;
 
+static PropWare::FullDuplexUART g_uart(
+    (PropWare::Port::Mask const) (bit(SERIAL_TX_PIN)),
+    (PropWare::Port::Mask const) (bit(SERIAL_RX_PIN)));
 
 #ifdef ENABLE_XONXOFF
   volatile uint8_t flow_ctrl = XON_SENT; // Flow control state variable
 #endif
-  
+
 
 // Returns the number of bytes used in the RX serial buffer.
-uint8_t serial_get_rx_buffer_count()
+uint8_t serial_get_rx_buffer_count ()
 {
   uint8_t rtail = serial_rx_buffer_tail; // Copy to limit multiple calls to volatile
-  if (serial_rx_buffer_head >= rtail) { return(serial_rx_buffer_head-rtail); }
-  return (RX_BUFFER_SIZE - (rtail-serial_rx_buffer_head));
+  if (serial_rx_buffer_head >= rtail) {return (serial_rx_buffer_head - rtail);}
+  return (RX_BUFFER_SIZE - (rtail - serial_rx_buffer_head));
 }
 
 
 // Returns the number of bytes used in the TX serial buffer.
 // NOTE: Not used except for debugging and ensuring no TX bottlenecks.
-uint8_t serial_get_tx_buffer_count()
+uint8_t serial_get_tx_buffer_count ()
 {
   uint8_t ttail = serial_tx_buffer_tail; // Copy to limit multiple calls to volatile
-  if (serial_tx_buffer_head >= ttail) { return(serial_tx_buffer_head-ttail); }
-  return (TX_BUFFER_SIZE - (ttail-serial_tx_buffer_head));
+  if (serial_tx_buffer_head >= ttail) {return (serial_tx_buffer_head - ttail);}
+  return (TX_BUFFER_SIZE - (ttail - serial_tx_buffer_head));
 }
 
 
-void serial_init()
+void serial_init ()
 {
-  // Set baud rate
-  #if BAUD_RATE < 57600
-    uint16_t UBRR0_value = ((F_CPU / (8L * BAUD_RATE)) - 1)/2 ;
-    UCSR0A &= ~(1 << U2X0); // baud doubler off  - Only needed on Uno XXX
-  #else
-    uint16_t UBRR0_value = ((F_CPU / (4L * BAUD_RATE)) - 1)/2;
-    UCSR0A |= (1 << U2X0);  // baud doubler on for high baud rates, i.e. 115200
-  #endif
-  UBRR0H = UBRR0_value >> 8;
-  UBRR0L = UBRR0_value;
-            
-  // enable rx and tx
-  UCSR0B |= 1<<RXEN0;
-  UCSR0B |= 1<<TXEN0;
-	
-  // enable interrupt on complete reception of a byte
-  UCSR0B |= 1<<RXCIE0;
-	  
-  // defaults to 8-bit, no parity, 1 stop bit
+  g_uart.set_baud_rate(BAUD_RATE);
+  g_uart.set_data_width(8);
+  g_uart.set_stop_bit_width(1);
+  g_uart.set_parity(PropWare::UART::NO_PARITY);
 }
 
 
 // Writes one byte to the TX serial buffer. Called by main program.
 // TODO: Check if we can speed this up for writing strings, rather than single bytes.
-void serial_write(uint8_t data) {
-  // Calculate next head
-  uint8_t next_head = serial_tx_buffer_head + 1;
-  if (next_head == TX_BUFFER_SIZE) { next_head = 0; }
-
-  // Wait until there is space in the buffer
-  while (next_head == serial_tx_buffer_tail) { 
-    // TODO: Restructure st_prep_buffer() calls to be executed here during a long print.    
-    if (sys.execute & EXEC_RESET) { return; } // Only check for abort to avoid an endless loop.
-  }
-
-  // Store data and advance head
-  serial_tx_buffer[serial_tx_buffer_head] = data;
-  serial_tx_buffer_head = next_head;
-  
-  // Enable Data Register Empty Interrupt to make sure tx-streaming is running
-  UCSR0B |=  (1 << UDRIE0); 
+void serial_write (uint8_t data)
+{
+  g_uart.send(data);
 }
 
 
+// TODO: Figure out what this does and implement it for the propeller
+/*
 // Data Register Empty Interrupt handler
 ISR(SERIAL_UDRE)
-{
-  uint8_t tail = serial_tx_buffer_tail; // Temporary serial_tx_buffer_tail (to optimize for volatile)
-  
-  #ifdef ENABLE_XONXOFF
+       {
+           uint8_t tail = serial_tx_buffer_tail; // Temporary serial_tx_buffer_tail (to optimize for volatile)
+
+#ifdef ENABLE_XONXOFF
     if (flow_ctrl == SEND_XOFF) { 
       UDR0 = XOFF_CHAR; 
       flow_ctrl = XOFF_SENT; 
@@ -124,48 +99,34 @@ ISR(SERIAL_UDRE)
       flow_ctrl = XON_SENT; 
     } else
   #endif
-  { 
-    // Send a byte from the buffer	
-    UDR0 = serial_tx_buffer[tail];
-  
-    // Update tail position
-    tail++;
-    if (tail == TX_BUFFER_SIZE) { tail = 0; }
-  
-    serial_tx_buffer_tail = tail;
-  }
-  
-  // Turn off Data Register Empty Interrupt to stop tx-streaming if this concludes the transfer
-  if (tail == serial_tx_buffer_head) { UCSR0B &= ~(1 << UDRIE0); }
-}
+       {
+         // Send a byte from the buffer
+         UDR0 = serial_tx_buffer[tail];
+
+         // Update tail position
+         tail++;
+         if (tail == TX_BUFFER_SIZE) {tail = 0;}
+
+         serial_tx_buffer_tail = tail;
+       }
+
+       // Turn off Data Register Empty Interrupt to stop tx-streaming if this concludes the transfer
+       if (tail == serial_tx_buffer_head) {
+         UCSR0B &= ~(1 << UDRIE0);
+       }
+       }
+*/
 
 
 // Fetches the first byte in the serial read buffer. Called by main program.
-uint8_t serial_read()
+uint8_t serial_read ()
 {
-  uint8_t tail = serial_rx_buffer_tail; // Temporary serial_rx_buffer_tail (to optimize for volatile)
-  if (serial_rx_buffer_head == tail) {
-    return SERIAL_NO_DATA;
-  } else {
-    uint8_t data = serial_rx_buffer[tail];
-    
-    tail++;
-    if (tail == RX_BUFFER_SIZE) { tail = 0; }
-    serial_rx_buffer_tail = tail;
-
-    #ifdef ENABLE_XONXOFF
-      if ((serial_get_rx_buffer_count() < RX_BUFFER_LOW) && flow_ctrl == XOFF_SENT) { 
-        flow_ctrl = SEND_XON;
-        UCSR0B |=  (1 << UDRIE0); // Force TX
-      }
-    #endif
-    
-    return data;
-  }
+  return g_uart.receive();
 }
 
 
-ISR(SERIAL_RX)
+// TODO: Read this, understand it, implement it for the Propeller
+/*ISR(SERIAL_RX)
 {
   uint8_t data = UDR0;
   uint8_t next_head;
@@ -196,14 +157,14 @@ ISR(SERIAL_RX)
       }
       //TODO: else alarm on overflow?
   }
-}
+}*/
 
 
-void serial_reset_read_buffer() 
+void serial_reset_read_buffer ()
 {
   serial_rx_buffer_tail = serial_rx_buffer_head;
 
-  #ifdef ENABLE_XONXOFF
+#ifdef ENABLE_XONXOFF
     flow_ctrl = XON_SENT;
   #endif
 }

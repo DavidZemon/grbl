@@ -22,7 +22,7 @@
   terms of the MIT-license. See COPYING for more details.  
     Copyright (c) 2009-2011 Simen Svale Skogsrud
     Copyright (c) 2011-2012 Sungeun K. Jeon
-*/  
+*/
 
 #ifndef gcode_h
 #define gcode_h
@@ -128,8 +128,6 @@
 #define WORD_Z  12
 
 
-
-
 // NOTE: When this struct is zeroed, the above defines set the defaults for the system.
 typedef struct {
   uint8_t motion;        // {G0,G1,G2,G3,G38.2,G80}
@@ -142,57 +140,57 @@ typedef struct {
   uint8_t program_flow;  // {M0,M1,M2,M30}
   uint8_t coolant;       // {M7,M8,M9}
   uint8_t spindle;       // {M3,M4,M5}
-} gc_modal_t;  
+}                     gc_modal_t;
 
 typedef struct {
-  float f;         // Feed
-  float ijk[3];    // I,J,K Axis arc offsets
+  float   f;         // Feed
+  float   ijk[3];    // I,J,K Axis arc offsets
   uint8_t l;       // G10 or canned cycles parameters
   int32_t n;       // Line number
-  float p;         // G10 or dwell parameters
+  float   p;         // G10 or dwell parameters
   // float q;      // G82 peck drilling
-  float r;         // Arc radius
-  float s;         // Spindle speed
+  float   r;         // Arc radius
+  float   s;         // Spindle speed
   uint8_t t;       // Tool selection
-  float xyz[3];    // X,Y,Z Translational axes
-} gc_values_t;
+  float   xyz[3];    // X,Y,Z Translational axes
+}                     gc_values_t;
 
 
 typedef struct {
   gc_modal_t modal;
-  
-  float spindle_speed;          // RPM
-  float feed_rate;              // Millimeters/min
+
+  float   spindle_speed;          // RPM
+  float   feed_rate;              // Millimeters/min
   uint8_t tool;                 // Tracks tool number. NOT USED.
 
   float position[N_AXIS];       // Where the interpreter considers the tool to be at this point in the code
 
   float coord_system[N_AXIS];   // Current work coordinate system (G54+). Stores offset from absolute machine
-                                // position in mm. Loaded from EEPROM when called.  
+  // position in mm. Loaded from EEPROM when called.
   float coord_offset[N_AXIS];   // Retains the G92 coordinate offset (work coordinates) relative to
-                                // machine zero in mm. Non-persistent. Cleared upon reset and boot.    
+  // machine zero in mm. Non-persistent. Cleared upon reset and boot.
   float tool_length_offset;     // Tracks tool length offset value when enabled.
-} parser_state_t;
+}                     parser_state_t;
 extern parser_state_t gc_state;
 
 typedef struct {
 //   uint16_t command_words;  // NOTE: If this bitflag variable fills, G and M words can be separated.
 //   uint16_t value_words;
 
-  uint8_t non_modal_command;
-  gc_modal_t modal;
+  uint8_t     non_modal_command;
+  gc_modal_t  modal;
   gc_values_t values;
 
-} parser_block_t;
+}                     parser_block_t;
 extern parser_block_t gc_block;
 
 // Initialize the parser
-void gc_init();
+void gc_init ();
 
 // Execute one block of rs275/ngc/g-code
-uint8_t gc_execute_line(char *line);
+uint8_t gc_execute_line (char *line);
 
 // Set g-code parser position. Input in steps.
-void gc_sync_position(); 
+void gc_sync_position ();
 
 #endif

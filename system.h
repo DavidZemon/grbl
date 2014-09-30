@@ -22,11 +22,7 @@
 #define system_h
 
 // Define system header files and standard libraries used by Grbl
-#include <avr/io.h>
-#include <avr/pgmspace.h>
-#include <avr/interrupt.h>
-#include <avr/wdt.h>
-#include <util/delay.h>
+#include <propeller.h>
 #include <math.h>
 #include <inttypes.h>    
 #include <string.h>
@@ -69,30 +65,30 @@
 
 
 // Define global system variables
-typedef struct {
-  uint8_t abort;                 // System abort flag. Forces exit back to main loop for reset.
-  uint8_t state;                 // Tracks the current state of Grbl.
+struct system_t {
+  uint8_t          abort;                 // System abort flag. Forces exit back to main loop for reset.
+  uint8_t          state;                 // Tracks the current state of Grbl.
   volatile uint8_t execute;      // Global system runtime executor bitflag variable. See EXEC bitmasks.
-  uint8_t homing_axis_lock;
-  int32_t position[N_AXIS];      // Real-time machine (aka home) position vector in steps. 
-                                 // NOTE: This may need to be a volatile variable, if problems arise.                             
-  uint8_t auto_start;            // Planner auto-start flag. Toggled off during feed hold. Defaulted by settings.
+  uint8_t          homing_axis_lock;
+  int32_t          position[N_AXIS];      // Real-time machine (aka home) position vector in steps.
+  // NOTE: This may need to be a volatile variable, if problems arise.
+  uint8_t          auto_start;            // Planner auto-start flag. Toggled off during feed hold. Defaulted by settings.
   volatile uint8_t probe_state;   // Probing state value.  Used to coordinate the probing cycle with stepper ISR.
-  int32_t probe_position[N_AXIS]; // Last probe position in machine coordinates and steps.
-} system_t;
+  int32_t          probe_position[N_AXIS]; // Last probe position in machine coordinates and steps.
+};
 extern system_t sys;
 
 
 // Initialize the serial protocol
-void system_init();
+void system_init ();
 
 // Executes an internal system command, defined as a string starting with a '$'
-uint8_t system_execute_line(char *line);
+uint8_t system_execute_line (char *line);
 
 // Checks and executes a runtime command at various stop points in main program
-void system_execute_runtime();
+void system_execute_runtime ();
 
 // Execute the startup script lines stored in EEPROM upon initialization
-void system_execute_startup(char *line);
+void system_execute_startup (char *line);
 
 #endif

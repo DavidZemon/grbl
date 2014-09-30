@@ -17,9 +17,9 @@
   You should have received a copy of the GNU General Public License
   along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
 */
-  
+
 #ifndef probe_h
-#define probe_h 
+#define probe_h
 
 // Values that define the probing state machine.  
 #define PROBE_OFF     0 // No probing. (Must be zero.)
@@ -27,13 +27,13 @@
 
 
 // Probe pin initialization routine.
-void probe_init();
+void probe_init ();
 
 // Returns probe pin state.
-uint8_t probe_get_state();
+uint8_t probe_get_state ();
 
 // Monitors probe pin state and records the system position when detected. Called by the
 // stepper ISR per ISR tick.
-void probe_state_monitor();
+void probe_state_monitor ();
 
 #endif

@@ -22,7 +22,7 @@
   terms of the MIT-license. See COPYING for more details.  
     Copyright (c) 2009-2011 Simen Svale Skogsrud
     Copyright (c) 2011-2012 Sungeun K. Jeon
-*/  
+*/
 
 #ifndef motion_control_h
 #define motion_control_h
@@ -35,7 +35,9 @@
 #ifdef USE_LINE_NUMBERS
 void mc_line(float *target, float feed_rate, uint8_t invert_feed_rate, int32_t line_number);
 #else
-void mc_line(float *target, float feed_rate, uint8_t invert_feed_rate);
+
+void mc_line (float *target, float feed_rate, uint8_t invert_feed_rate);
+
 #endif
 
 // Execute an arc in offset mode format. position == current xyz, target == target xyz, 
@@ -46,24 +48,30 @@ void mc_line(float *target, float feed_rate, uint8_t invert_feed_rate);
 void mc_arc(float *position, float *target, float *offset, float radius, float feed_rate, 
   uint8_t invert_feed_rate, uint8_t axis_0, uint8_t axis_1, uint8_t axis_linear, int32_t line_number);
 #else
-void mc_arc(float *position, float *target, float *offset, float radius, float feed_rate,
-  uint8_t invert_feed_rate, uint8_t axis_0, uint8_t axis_1, uint8_t axis_linear);
+
+void mc_arc (float *position, float *target, float *offset, float radius,
+             float feed_rate,
+             uint8_t invert_feed_rate, uint8_t axis_0, uint8_t axis_1,
+             uint8_t axis_linear);
+
 #endif
-  
+
 // Dwell for a specific number of seconds
-void mc_dwell(float seconds);
+void mc_dwell (float seconds);
 
 // Perform homing cycle to locate machine zero. Requires limit switches.
-void mc_homing_cycle();
+void mc_homing_cycle ();
 
 // Perform tool length probe cycle. Requires probe switch.
 #ifdef USE_LINE_NUMBERS
 void mc_probe_cycle(float *target, float feed_rate, uint8_t invert_feed_rate, int32_t line_number);
 #else
-void mc_probe_cycle(float *target, float feed_rate, uint8_t invert_feed_rate);
+
+void mc_probe_cycle (float *target, float feed_rate, uint8_t invert_feed_rate);
+
 #endif
 
 // Performs system reset. If in motion state, kills all motion and sets system alarm.
-void mc_reset();
+void mc_reset ();
 
 #endif

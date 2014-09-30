@@ -66,39 +66,39 @@
 #define MESSAGE_DISABLED 5
 
 // Prints system status messages.
-void report_status_message(uint8_t status_code);
+void report_status_message (uint8_t status_code);
 
 // Prints system alarm messages.
-void report_alarm_message(int8_t alarm_code);
+void report_alarm_message (int8_t alarm_code);
 
 // Prints miscellaneous feedback messages.
-void report_feedback_message(uint8_t message_code);
+void report_feedback_message (uint8_t message_code);
 
 // Prints welcome message
-void report_init_message();
+void report_init_message ();
 
 // Prints Grbl help and current global settings
-void report_grbl_help();
+void report_grbl_help ();
 
 // Prints Grbl global settings
-void report_grbl_settings();
+void report_grbl_settings ();
 
 // Prints realtime status report
-void report_realtime_status();
+void report_realtime_status ();
 
 // Prints recorded probe position
-void report_probe_parameters();
+void report_probe_parameters ();
 
 // Prints Grbl NGC parameters (coordinate offsets, probe)
-void report_ngc_parameters();
+void report_ngc_parameters ();
 
 // Prints current g-code parser mode state
-void report_gcode_modes();
+void report_gcode_modes ();
 
 // Prints startup line
-void report_startup_line(uint8_t n, char *line);
+void report_startup_line (uint8_t n, char *line);
 
 // Prints build info and user info
-void report_build_info(char *line);
+void report_build_info (char *line);
 
 #endif

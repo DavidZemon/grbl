@@ -22,7 +22,7 @@
   terms of the MIT-license. See COPYING for more details.  
     Copyright (c) 2009-2011 Simen Svale Skogsrud
     Copyright (c) 2011-2012 Sungeun K. Jeon
-*/ 
+*/
 
 #ifndef protocol_h
 #define protocol_h
@@ -34,15 +34,15 @@
 // memory space we can invest into here or we re-write the g-code parser not to have this 
 // buffer.
 #ifndef LINE_BUFFER_SIZE
-  #define LINE_BUFFER_SIZE 80
+#define LINE_BUFFER_SIZE 80
 #endif
 
 // Starts Grbl main loop. It handles all incoming characters from the serial port and executes
 // them as they complete. It is also responsible for finishing the initialization procedures.
-void protocol_main_loop();
+void protocol_main_loop ();
 
 // Checks and executes a runtime command at various stop points in main program
-void protocol_execute_runtime();
+void protocol_execute_runtime ();
 
 // Notify the stepper subsystem to start executing the g-code program in buffer.
 // void protocol_cycle_start();
@@ -54,9 +54,9 @@ void protocol_execute_runtime();
 // void protocol_feed_hold();
 
 // Executes the auto cycle feature, if enabled.
-void protocol_auto_cycle_start();
+void protocol_auto_cycle_start ();
 
 // Block until all buffered steps are executed
-void protocol_buffer_synchronize();
+void protocol_buffer_synchronize ();
 
 #endif

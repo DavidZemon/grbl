@@ -22,7 +22,7 @@
   terms of the MIT-license. See COPYING for more details.  
     Copyright (c) 2009-2011 Simen Svale Skogsrud
     Copyright (c) 2011-2012 Sungeun K. Jeon
-*/ 
+*/
 
 #ifndef settings_h
 #define settings_h
@@ -87,57 +87,60 @@ typedef struct {
   uint8_t dir_invert_mask;
   uint8_t stepper_idle_lock_time; // If max value 255, steppers do not disable.
   uint8_t status_report_mask; // Mask to indicate desired report data.
-  float junction_deviation;
-  float arc_tolerance;
-  
+  float   junction_deviation;
+  float   arc_tolerance;
+
   uint8_t flags;  // Contains default boolean settings
 
-  uint8_t homing_dir_mask;
-  float homing_feed_rate;
-  float homing_seek_rate;
+  uint8_t  homing_dir_mask;
+  float    homing_feed_rate;
+  float    homing_seek_rate;
   uint16_t homing_debounce_delay;
-  float homing_pulloff;
-} settings_t;
+  float    homing_pulloff;
+}                 settings_t;
 extern settings_t settings;
 
 // Initialize the configuration subsystem (load settings from EEPROM)
-void settings_init();
+void settings_init ();
 
 // Helper functions to clear and restore EEPROM defaults
-void settings_restore_global_settings();
-void settings_clear_parameters();
-void settings_clear_startup_line();
-void settings_clear_build_info();
+void settings_restore_global_settings ();
+
+void settings_clear_parameters ();
+
+void settings_clear_startup_line ();
+
+void settings_clear_build_info ();
 
 // A helper method to set new settings from command line
-uint8_t settings_store_global_setting(uint8_t parameter, float value);
+uint8_t settings_store_global_setting (uint8_t parameter, float value);
 
 // Stores the protocol line variable as a startup line in EEPROM
-void settings_store_startup_line(uint8_t n, char *line);
+void settings_store_startup_line (uint8_t n, char *line);
 
 // Reads an EEPROM startup line to the protocol line variable
-uint8_t settings_read_startup_line(uint8_t n, char *line);
+uint8_t settings_read_startup_line (uint8_t n, char *line);
 
 // Stores build info user-defined string
-void settings_store_build_info(char *line);
+void settings_store_build_info (char *line);
 
 // Reads build info user-defined string
-uint8_t settings_read_build_info(char *line);
+uint8_t settings_read_build_info (char *line);
 
 // Writes selected coordinate data to EEPROM
-void settings_write_coord_data(uint8_t coord_select, float *coord_data);
+void settings_write_coord_data (uint8_t coord_select, float *coord_data);
 
 // Reads selected coordinate data from EEPROM
-uint8_t settings_read_coord_data(uint8_t coord_select, float *coord_data);
+uint8_t settings_read_coord_data (uint8_t coord_select, float *coord_data);
 
 // Returns the step pin mask according to Grbl's internal axis numbering
-uint8_t get_step_pin_mask(uint8_t i);
+uint8_t get_step_pin_mask (uint8_t i);
 
 // Returns the direction pin mask according to Grbl's internal axis numbering
-uint8_t get_direction_pin_mask(uint8_t i);
+uint8_t get_direction_pin_mask (uint8_t i);
 
 // Returns the limit pin mask according to Grbl's internal axis numbering
-uint8_t get_limit_pin_mask(uint8_t i);
+uint8_t get_limit_pin_mask (uint8_t i);
 
 
 #endif

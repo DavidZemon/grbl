@@ -22,19 +22,19 @@
   terms of the MIT-license. See COPYING for more details.  
     Copyright (c) 2009-2011 Simen Svale Skogsrud
     Copyright (c) 2012 Sungeun K. Jeon
-*/ 
+*/
 
 #ifndef spindle_control_h
-#define spindle_control_h 
+#define spindle_control_h
 
 
 // Initializes spindle pins and hardware PWM, if enabled.
-void spindle_init();
+void spindle_init ();
 
 // Sets spindle direction and spindle rpm via PWM, if enabled.
-void spindle_run(uint8_t direction, float rpm);
+void spindle_run (uint8_t direction, float rpm);
 
 // Kills spindle.
-void spindle_stop();
+void spindle_stop ();
 
 #endif

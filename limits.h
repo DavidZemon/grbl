@@ -21,21 +21,21 @@
   This file is based on work from Grbl v0.8, distributed under the 
   terms of the MIT-license. See COPYING for more details.  
     Copyright (c) 2009-2011 Simen Svale Skogsrud
-*/  
+*/
 
 #ifndef limits_h
-#define limits_h 
+#define limits_h
 
 
 // Initialize the limits module
-void limits_init();
+void limits_init ();
 
-void limits_disable();
+void limits_disable ();
 
 // Perform one portion of the homing cycle based on the input settings.
-void limits_go_home(uint8_t cycle_mask);
+void limits_go_home (uint8_t cycle_mask);
 
 // Check for soft limit violations
-void limits_soft_check(float *target);
+void limits_soft_check (float *target);
 
 #endif
